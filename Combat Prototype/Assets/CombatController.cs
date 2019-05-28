@@ -113,6 +113,7 @@ public class CombatController : MonoBehaviour
                     List<Character> input = new List<Character>();
                     input.Add(totalCombatants[selectedCharacter]);
                     completeTargetSelection(input);
+                    SwitchToActive();
                 }
                 break;
 			case (State.turn):

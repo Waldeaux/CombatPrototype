@@ -200,7 +200,7 @@ public class CombatController : MonoBehaviour
 		switchToTurn?.Invoke();
 	}
 
-	void SwitchToActive()
+	public void SwitchToActive()
     {
         print("active");
         foreach (Character character in totalCombatants)

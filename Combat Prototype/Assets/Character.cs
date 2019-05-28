@@ -10,7 +10,7 @@ public class Character : MonoBehaviour
 
 	public delegate void CharacterTurn(float timeRatio);
 	public event CharacterTurn OnCharacterTurn;
-
+    public Vector3 InitialPoint;
 
 	public delegate void DealDamageEvent(int actor, List<GameObject> targets);
 	public DealDamageEvent dealDamage;

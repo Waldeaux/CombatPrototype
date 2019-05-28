@@ -607,6 +607,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f3799e845197084882e532e484e6b90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  InitialPoint: {x: 0, y: 0, z: 0}
   target: {fileID: 0}
   characterName: Test
   maxHealth: 25
@@ -1552,6 +1553,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f3799e845197084882e532e484e6b90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  InitialPoint: {x: -7.21, y: -0.5599999, z: 0}
   target: {fileID: 0}
   characterName: Test
   maxHealth: 25

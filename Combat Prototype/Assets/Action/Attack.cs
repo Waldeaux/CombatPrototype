@@ -27,9 +27,9 @@ public class Attack :Action
         float mag = moveVector.magnitude;
         Vector3 distanceVector = moveVector.normalized * (mag - 1.25f);
         mag = distanceVector.magnitude;
-        if(mag > (moveVector.normalized*Time.deltaTime*10).magnitude)
+        if(mag > (moveVector.normalized*Time.deltaTime*20).magnitude)
         {
-            moveVector = (moveVector.normalized * Time.deltaTime * 10);
+            moveVector = (moveVector.normalized * Time.deltaTime * 20);
         }
         else
         {
@@ -60,10 +60,18 @@ public class Attack :Action
             }
         }
         timer = 0;
-        actor.actionDelegate += CheckIfResumeTurns;
-        actor.actionDelegate += CheckIfBounce;
+        actor.actionDelegate += Wait;
     }
 
+    private void Wait()
+    {
+        timer += Time.deltaTime;
+        if (timer >= 1f)
+        {
+            actor.actionDelegate -= Wait;
+            actor.actionDelegate += MoveBack;
+        }
+    }
     private void CheckIfResumeTurns()
     {
         //print(timer);
@@ -72,6 +80,36 @@ public class Attack :Action
         {
             GameController.Instance.combatController.SwitchToTurn();
             actor.actionDelegate -= CheckIfResumeTurns;
+        }
+    }
+
+    private void MoveBack()
+    {
+
+        Vector3 targetPoint = actor.InitialPoint;
+        //targetPoint.y = actorTransform.position.y;
+        Vector3 moveVector = (targetPoint - actorTransform.position);
+        float mag = moveVector.magnitude;
+        Vector3 distanceVector = moveVector.normalized * (mag - 1.25f);
+        mag = distanceVector.magnitude;
+        if (mag > (moveVector.normalized * Time.deltaTime * 20).magnitude)
+        {
+            moveVector = (moveVector.normalized * Time.deltaTime * 20);
+        }
+        else
+        {
+            moveVector = distanceVector;
+        }
+        actorTransform.position += moveVector;
+        targetPoint = actor.InitialPoint;
+        moveVector = targetPoint - actorTransform.position;
+        mag = moveVector.magnitude - 1.26f;
+        print(mag);
+        if (mag <= 0)
+        {
+            actor.currentState = Character.State.none;
+            actor.actionDelegate -= MoveBack;
+            GameController.Instance.combatController.SwitchToActive();
         }
     }
     private void CheckIfBounce()

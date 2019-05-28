@@ -70,8 +70,8 @@ public class Menu : MonoBehaviour
 			print(options[x].anchorY);
 			RectTransform dummyRt = options[x].gameObject.GetComponent<RectTransform>();
 			options[x].transform.SetParent(transform);
-			//dummyRt.anchorMax = new Vector2(.95f, 1-(x)*options[x].anchorY);
-			//dummyRt.anchorMin = new Vector2(0.05f, 1 - (x + 1) * options[x].anchorY);
+			dummyRt.anchorMax = new Vector2(.95f, 1-(x)*options[x].anchorY);
+			dummyRt.anchorMin = new Vector2(0.05f, 1 - (x + 1) * options[x].anchorY);
 			dummyRt.offsetMin = Vector2.zero;
 			dummyRt.offsetMax = Vector2.zero;
 		}

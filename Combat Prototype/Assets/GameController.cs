@@ -41,8 +41,11 @@ public class GameController : MonoBehaviour
 
 	void Update()
 	{
+        if (menuController.IsMenuActive()) { 
 		menuController.HandleInput();
-		switch (currentState)
+        }
+        else { 
+        switch (currentState)
 		{
 			case (GameState.Overworld):
 				break;
@@ -50,6 +53,6 @@ public class GameController : MonoBehaviour
 				combatController.CombatUpdate();
 				break;
 		}
-		
-	}
+        }
+    }
 }

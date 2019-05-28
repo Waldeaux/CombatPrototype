@@ -62,12 +62,23 @@ public class MenuController : MonoBehaviour
 
 	public void HideMenu()
 	{
+        if(menuObject != null) { 
+        foreach(MenuOption option in menuObject.GetComponentsInChildren<MenuOption>())
+        {
+            option.transform.SetParent(null);
+        }
 		Destroy(menuObject);
-	}
+        }
+    }
 	public void DisplayOptions(List<MenuOption> optionsInput)
 	{
 		options = optionsInput;
 		Menu thisMenu = GetMenu();
 		thisMenu.CreateMenu(optionsInput);
 	}
+
+    public bool IsMenuActive()
+    {
+        return menu != null;
+    }
 }

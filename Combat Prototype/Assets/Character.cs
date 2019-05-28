@@ -31,18 +31,19 @@ public class Character : MonoBehaviour
 	public delegate void AutoAbility(Character actor, List<GameObject> targets);
 	public AutoAbility autoAbility;
 
-	private ActionTimerDisplay actionTimerDisplay;
+    public delegate void ActionDelegate();
+    public event ActionDelegate actionDelegate;
+    private ActionTimerDisplay actionTimerDisplay;
 	public float actionTimer = 0;
 
 	public float speed;
 
 	public List<Action> availableActions = new List<Action>();
-	private enum State { attacking, ability, none}
-	private State currentState;
+	public enum State { attacking, ability, none}
+    public State currentState;
 	
 	public void InitializeCharacter(CharacterUI input)
 	{
-		availableActions.Add(Fire.instance);
 		rb = GetComponent<Rigidbody>();
 		currentState = State.none;
 		input.InitializeValues(this);
@@ -57,7 +58,8 @@ public class Character : MonoBehaviour
 	{
 		switch (currentState) {
 			case (State.ability):
-
+                actionDelegate?.Invoke();
+                break;
 			default:/*
 				foreach(Status status in currentStatus)
 				{
@@ -67,6 +69,7 @@ public class Character : MonoBehaviour
 				{
 					OnCharacterTurn(timeInput);
 				}
+
 				if (actions.AtMax()) {
 					actionTimer = 0;
 				}
@@ -99,14 +102,14 @@ public class Character : MonoBehaviour
 
 		}
 	}
-	public void HandleTurnTurn(float timeInput)
-	{
-		switch (currentState)
-		{
-			case (State.attacking):
 
-				break;
-		}
+    public void HandleTurnCharacter()
+    {
+        actionDelegate?.Invoke();
+    }
+	public void HandleTurnTurn(float timeInput)
+    {
+        actionDelegate?.Invoke();
 	}
 
 	public void DealDamage(int damage, List<GameObject> targets)
@@ -119,20 +122,12 @@ public class Character : MonoBehaviour
 			}
 		}
 
-		if(GetComponent<SpellZerk>() == null)
-		{
-			gameObject.AddComponent<SpellZerk>();
-		}
-		else
-		{
-			GetComponent<SpellZerk>().AdjustStacks(1);
-		}
 
-		dealDamage(damage, targets);
+		dealDamage?.Invoke(damage, targets);
 	}
 	public void TakeDamage(int damage)
 	{
-		GameController.Instance.combatController.DamageDisplay(Camera.main.WorldToViewportPoint(transform.position), damage);
+		GameController.Instance.combatController.DamageDisplay(Camera.main.WorldToViewportPoint(transform.position + new Vector3(0,1,0)), damage);
 		AdjustHealth(-damage);
 	}
 	public void AdjustHealth(int healthInput)
@@ -183,8 +178,11 @@ public class Character : MonoBehaviour
 		List<ActionInfo> availableActionsInfo = new List<ActionInfo>();
 		foreach(Action action in availableActions)
 		{
+            Action action2 = action;
+            availableActionsInfo.Add(action2.GetActionInfo());
 			availableActionsInfo.Add(action.GetActionInfo());
 		}
 		return availableActionsInfo;
 	}
+    
 }

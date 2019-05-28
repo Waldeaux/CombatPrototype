@@ -13,14 +13,19 @@ public class CombatController : MonoBehaviour
 	public delegate void OnSwitchToActive();
 	public static event OnSwitchToActive switchToActive;
 
+    public delegate void CompleteTargetSelection(List<Character> targets);
+    public event CompleteTargetSelection completeTargetSelection;
+
 	public List<Character> totalCombatants = new List<Character>();
 	public List<CharacterUI> characterUIs = new List<CharacterUI>();
+
+    public GameObject cursor;
 
 	public int selectedCharacter;
 	public GameObject characterDisplay;
 	public GameObject canvas;
 	public float timeRatio;
-	private Character actingCharacter;
+	public Character actingCharacter;
 	private enum State { selectingCharacter, selectingAction, selectingTarget, active, turn, character}
 	private State currentState;
 
@@ -29,6 +34,7 @@ public class CombatController : MonoBehaviour
 	public GameObject defaultMenu;
 
 	public GameObject damageDisplay;
+    
 	
     // Start is called before the first frame update
    public void InitializeCombatController()
@@ -54,10 +60,16 @@ public class CombatController : MonoBehaviour
 			x++;
 			
 		}
+
+        cursor.SetActive(false);
     }
 
 	public void CombatUpdate()
 	{
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            print(currentState.ToString());
+        }
 		if (Input.GetKeyDown(KeyCode.Escape))
 		{
 			SwitchToActive();
@@ -74,7 +86,35 @@ public class CombatController : MonoBehaviour
 				}
 				break;
 			case (State.selectingTarget):
+                selectedCharacter = 0;
+                if (Input.GetKeyDown(KeyCode.UpArrow))
+                {
+                    selectedCharacter--;
+                    if (selectedCharacter < 0)
+                    {
+                        selectedCharacter = totalCombatants.Count - 1;
+                    }
 
+                }
+                if (Input.GetKeyDown(KeyCode.DownArrow))
+                {
+                    selectedCharacter++;
+                    if (selectedCharacter > totalCombatants.Count - 1)
+                    {
+                        selectedCharacter = 0;
+                    }
+                }
+                cursor.transform.position = totalCombatants[selectedCharacter].gameObject.transform.position + new Vector3(0, 1);
+                if (Input.GetKeyDown(KeyCode.Return))
+                {
+                    //GetComponent<MenuController>().ShowMenu();
+                    //currentMenu = GameController.Instance.menuController.GetMenu();
+                    //currentState = State.selectingAction;
+                    List<Character> input = new List<Character>();
+                    input.Add(totalCombatants[selectedCharacter]);
+                    completeTargetSelection(input);
+                }
+                break;
 			case (State.turn):
 				if (Input.GetKeyDown(KeyCode.Space))
 				{
@@ -99,9 +139,10 @@ public class CombatController : MonoBehaviour
 						selectedCharacter = 0;
 					}
 				}
+                cursor.transform.position = totalCombatants[selectedCharacter].gameObject.transform.position + new Vector3(0,1);
 				if (Input.GetKeyDown(KeyCode.Return))
 				{
-					List<ActionInfo> totalInfo= totalCombatants[selectedCharacter].GetAvailableActions();
+                    /*List<ActionInfo> totalInfo= totalCombatants[selectedCharacter].GetAvailableActions();
 					GameObject actionOptionExemplar = Object.Instantiate(GameController.Instance.actionOptionPrefab);
 					List<MenuOption> optionList = new List<MenuOption>();
 					int index = 0;
@@ -111,13 +152,17 @@ public class CombatController : MonoBehaviour
 						dummy.GetComponent<ActionOption>().SetFields(info);
 						optionList.Add(dummy.GetComponent<MenuOption>());
 						index++;
-					}
-					GameController.Instance.menuController.ShowMenu();
-					GameController.Instance.menuController.DisplayOptions(optionList);
-					currentState = State.selectingAction;
+					}*/
+                    //GameController.Instance.menuController.ShowMenu();
+                    //GameController.Instance.menuController.DisplayOptions(optionList);
+                    actingCharacter = totalCombatants[selectedCharacter];
+                    GetComponent<MenuController>().ShowMenu();
+                    currentMenu = GameController.Instance.menuController.GetMenu();
+                    currentState = State.selectingAction;
 				}
 				break;
 			case (State.character):
+                
 				if(actingCharacter == null)
 				{
 					SwitchToActive();
@@ -130,23 +175,34 @@ public class CombatController : MonoBehaviour
 		}
 	}
 	
-	void SwitchToTurn()
+    public void SwitchToCharacter()
+    {
+        print("character");
+        currentState = State.character;
+        foreach (Character character in totalCombatants)
+        {
+            character.gameObject.GetComponent<Rigidbody>().isKinematic = true;
+        }
+    }
+	public void SwitchToTurn()
 	{
 		foreach (Character character in totalCombatants)
 		{
 			character.gameObject.GetComponent<Rigidbody>().isKinematic = true;
 		}
 		selectedCharacter = 0;
-		GetComponent<MenuController>().ShowMenu();
-		currentState = State.turn;
-		currentMenu = GameController.Instance.menuController.GetMenu();
+		//GetComponent<MenuController>().ShowMenu();
+		currentState = State.selectingCharacter;
+        cursor.SetActive(true);
+		//currentMenu = GameController.Instance.menuController.GetMenu();
 		
 		switchToTurn?.Invoke();
 	}
 
 	void SwitchToActive()
-	{
-		foreach(Character character in totalCombatants)
+    {
+        print("active");
+        foreach (Character character in totalCombatants)
 		{
 			character.gameObject.GetComponent<Rigidbody>().isKinematic = false;
 		}
@@ -173,4 +229,10 @@ public class CombatController : MonoBehaviour
 	{
 		return actingCharacter;
 	}
+    
+    public void SelectTargets(CompleteTargetSelection input)
+    {
+        currentState = State.selectingTarget;
+        completeTargetSelection = input;
+    }
 }

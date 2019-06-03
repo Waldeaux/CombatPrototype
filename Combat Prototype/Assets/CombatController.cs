@@ -86,7 +86,6 @@ public class CombatController : MonoBehaviour
 				}
 				break;
 			case (State.selectingTarget):
-                selectedCharacter = 0;
                 if (Input.GetKeyDown(KeyCode.UpArrow))
                 {
                     selectedCharacter--;
@@ -160,7 +159,8 @@ public class CombatController : MonoBehaviour
                     GetComponent<MenuController>().ShowMenu();
                     currentMenu = GameController.Instance.menuController.GetMenu();
                     currentState = State.selectingAction;
-				}
+                    selectedCharacter = 0;
+                }
 				break;
 			case (State.character):
                 

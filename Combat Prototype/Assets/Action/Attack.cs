@@ -4,11 +4,16 @@ using UnityEngine;
 
 public class Attack :Action
 {
+
+    //Range
+    //Movement speed
+    //Knockback?
     public override string actionName { get; }
     public List<GameObject> targets;
     public Character actor;
     public Transform actorTransform;
     float timer;
+    private Vector3 targetpoint;
     public override void DoAction(Character actorInput, List<GameObject> targetsInput)
     {
         actor = actorInput;
@@ -69,7 +74,7 @@ public class Attack :Action
         if (timer >= 1f)
         {
             actor.actionDelegate -= Wait;
-            actor.actionDelegate += MoveBack;
+            actor.actionDelegate += StepBack;
         }
     }
     private void CheckIfResumeTurns()
@@ -128,6 +133,36 @@ public class Attack :Action
             actor.actionDelegate -= CheckIfBounce;
         }
         
+    }
+
+    private void StepBack()
+    {
+
+        Vector3 targetPoint = actor.InitialPoint;
+        //targetPoint.y = actorTransform.position.y;
+        Vector3 moveVector = (targetPoint - actorTransform.position);
+        float mag = moveVector.magnitude;
+        Vector3 distanceVector = moveVector.normalized * (mag - 1.25f);
+        mag = distanceVector.magnitude;
+        if (mag > (moveVector.normalized * Time.deltaTime * 20).magnitude)
+        {
+            moveVector = (moveVector.normalized * Time.deltaTime * 20);
+        }
+        else
+        {
+            moveVector = distanceVector;
+        }
+        actorTransform.position += moveVector;
+        targetPoint = actor.InitialPoint;
+        moveVector = targetPoint - actorTransform.position;
+        mag = moveVector.magnitude - 1.26f;
+        print(mag);
+        if (mag <= 0)
+        {
+            actor.currentState = Character.State.none;
+            actor.actionDelegate -= MoveBack;
+            GameController.Instance.combatController.SwitchToActive();
+        }
     }
     private void End()
     {

@@ -26,7 +26,7 @@ public class CombatController : MonoBehaviour
 	public GameObject canvas;
 	public float timeRatio;
 	public Character actingCharacter;
-	private enum State { selectingCharacter, selectingAction, selectingTarget, active, turn, character}
+	private enum State { selectingCharacter, selectingAction, selectingTarget, active, character}
 	private State currentState;
 
 	public Menu currentMenu;
@@ -115,13 +115,8 @@ public class CombatController : MonoBehaviour
                     SwitchToActive();
                 }
                 break;
-			case (State.turn):
-				if (Input.GetKeyDown(KeyCode.Space))
-				{
-					SwitchToActive();
-				}
-				break;
-			case (State.selectingCharacter):
+            #region SelectingCharacter
+            case (State.selectingCharacter):
 				if (Input.GetKeyDown(KeyCode.UpArrow))
 				{
 					selectedCharacter--;
@@ -162,7 +157,12 @@ public class CombatController : MonoBehaviour
                     selectedCharacter = 0;
                 }
 				break;
-			case (State.character):
+            #endregion
+
+            #region Character
+                //Currently only used in SwitchToCharacter, which is not used anywhere
+                //Could be used for a skill that pauses combat
+            case (State.character):
                 
 				if(actingCharacter == null)
 				{
@@ -173,7 +173,8 @@ public class CombatController : MonoBehaviour
 					actingCharacter.HandleTurnTurn(timeRatio);
 				}
 				break;
-		}
+                #endregion
+        }
 	}
 	
     public void SwitchToCharacter()
